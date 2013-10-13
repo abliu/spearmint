@@ -133,7 +133,9 @@ def run_python_job(job):
 
     # Store the result.
     job.value = result
-    save_job(job)
+    # save_job(job)
+
+    return result
 
 
 def run_torch_job(job):

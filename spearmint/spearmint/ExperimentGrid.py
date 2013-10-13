@@ -61,14 +61,8 @@ class ExperimentGrid:
 
     def __init__(self, expt_dir, variables=None, grid_size=None, grid_seed=1):
         self.expt_dir = expt_dir
-        self.jobs_pkl = os.path.join(expt_dir, EXPERIMENT_GRID_FILE)
-        self.locker   = Locker()
 
-        # Only one process at a time is allowed to have access to the grid.
-        self.locker.lock_wait(self.jobs_pkl)
-
-        # Set up the grid for the first time if it doesn't exist.
-        if variables is not None and not os.path.exists(self.jobs_pkl):
+        if variables is not None:
             self.seed     = grid_seed
             self.vmap     = GridMap(variables, grid_size)
             self.grid     = self._hypercube_grid(self.vmap.card(), grid_size)
@@ -76,12 +70,7 @@ class ExperimentGrid:
             self.values   = np.zeros(grid_size) + np.nan
             self.durs     = np.zeros(grid_size) + np.nan
             self.proc_ids = np.zeros(grid_size, dtype=int)
-            self._save_jobs()
-
-        # Or load in the grid from the pickled file.
-        else:
-            self._load_jobs()
-
+            # self._save_jobs()
 
     def __del__(self):
         self._save_jobs()
@@ -108,6 +97,9 @@ class ExperimentGrid:
     def get_params(self, index):
         return self.vmap.get_params(self.grid[index,:])
 
+    def get_raw_params(self, index):
+        return self.grid[index,:]
+
     def get_best(self):
         finite = self.values[np.isfinite(self.values)]
         if len(finite) > 0:
@@ -132,10 +124,7 @@ class ExperimentGrid:
 
         self.values = np.append(self.values, np.zeros(1)+np.nan)
         self.durs   = np.append(self.durs, np.zeros(1)+np.nan)
-        self.proc_ids = np.append(self.proc_ids, np.zeros(1,dtype=int))
 
-        # Save this out.
-        self._save_jobs()
         return self.grid.shape[0]-1
 
     def set_candidate(self, id):
@@ -155,7 +144,7 @@ class ExperimentGrid:
         self.status[id] = COMPLETE_STATE
         self.values[id] = value
         self.durs[id]   = duration
-        self._save_jobs()
+        # self._save_jobs()
 
     def set_broken(self, id):
         self.status[id] = BROKEN_STATE
