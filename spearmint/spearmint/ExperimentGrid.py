@@ -73,11 +73,12 @@ class ExperimentGrid:
             # self._save_jobs()
 
     def __del__(self):
-        self._save_jobs()
-        if self.locker.unlock(self.jobs_pkl):
-            pass
-        else:
-            raise Exception("Could not release lock on job grid.\n")
+        pass
+        #self._save_jobs()
+        #if self.locker.unlock(self.jobs_pkl):
+            #pass
+        #else:
+            #raise Exception("Could not release lock on job grid.\n")
 
     def get_grid(self):
         return self.grid, self.values, self.durs
