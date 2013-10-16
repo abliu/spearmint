@@ -54,7 +54,7 @@ Gaussian process hyperparameters.
 """
 class GPEIOptChooser:
 
-    def __init__(self, expt_dir, covar="Matern52", mcmc_iters=10,
+    def __init__(self, expt_dir, covar="bumpkern", mcmc_iters=10,
                  pending_samples=100, noiseless=False, burnin=100,
                  grid_subset=20):
         self.cov_func        = getattr(gp, covar)

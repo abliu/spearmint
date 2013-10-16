@@ -47,7 +47,7 @@ is used to sample Gaussian process hyperparameters for the GP.
 """
 class GPEIChooser:
 
-    def __init__(self, expt_dir, covar="Matern52", mcmc_iters=10,
+    def __init__(self, expt_dir, covar="bumpkern", mcmc_iters=10,
                  pending_samples=100, noiseless=False):
         self.cov_func        = getattr(gp, covar)
         self.locker          = Locker()

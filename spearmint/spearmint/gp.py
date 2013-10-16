@@ -135,8 +135,40 @@ def grad_Matern52(ls, x1, x2=None):
     grad_r2 = -(5.0/6.0)*np.exp(-SQRT_5*r)*(1 + SQRT_5*r)
     return grad_r2[:,:,np.newaxis] * grad_dist2(ls, x1, x2)
 
+# Assumes that the first component 
+def bumpkern(ls, x1, x2=None, grad=False):
+    if grad == True:
+        print "FAILURE"
+        os.exit(0)
+    # Extract force and angle
+    angle1 = x1[0]
+    force1 = x1[1:]
+    if x2 == None:
+        angle2 = None
+        force2 = None
+    else:
+        angle2 = x2[0]
+        force2 = x2[1:]
+    # Split length scales in half
+    lsForce = ls[1:]
+    lsAngle = ls[0]
+
+    if x2 == None:
+        dTheta = 0
+    else:
+        dTheta = np.abs(angle1-angle2)
+
+    # Matern 5/2 for force
+    kF = Matern52(lsForce, force1, force2)
+    # Periodic for theta
+    kT = np.exp(-2*np.square(math.sin(dTheta/2)/lsAngle))
+
+    return kF * kT
+
+
+
 class GP:
-    def __init__(self, covar="Matern52", mcmc_iters=10, noiseless=False):
+    def __init__(self, covar="bumpkern", mcmc_iters=10, noiseless=False):
         self.cov_func        = globals()[covar]
         self.mcmc_iters      = int(mcmc_iters)
         self.D               = -1
