@@ -122,6 +122,9 @@ def grad_Matern32(ls, x1, x2=None):
     return grad_r2[:,:,np.newaxis] * grad_dist2(ls, x1, x2)
 
 def Matern52(ls, x1, x2=None, grad=False):
+    print 'x1: %s' % (x1.shape,)
+    if x2 is not None:
+        print 'x2: %s' % (x2.shape,)
     r2  = np.abs(dist2(ls, x1, x2))
     r   = np.sqrt(r2)
     cov = (1.0 + SQRT_5*r + (5.0/3.0)*r2) * np.exp(-SQRT_5*r)
@@ -163,7 +166,7 @@ def bumpkern(ls, x1, x2=None, grad=False):
     # Matern 5/2 for force
     kF = Matern52(lsForce, force1, force2)
     # Periodic for theta
-    kT = np.exp(-2*np.square(np.sin(dTheta/2)/lsAngle))
+    kT = np.exp(-2*np.square(np.sin(math.pi * dTheta/1)/lsAngle))
 
     return kF * kT
 
