@@ -140,6 +140,7 @@ def bumpkern(ls, x1, x2=None, grad=False):
     if grad == True:
         print "FAILURE"
         os.exit(0)
+    print "Shape (x1):", x1.shape
     # Extract force and angle
     angle1 = x1[0]
     force1 = x1[1:]
@@ -147,6 +148,7 @@ def bumpkern(ls, x1, x2=None, grad=False):
         angle2 = None
         force2 = None
     else:
+        print "Shape: (x2):", x2.shape
         angle2 = x2[0]
         force2 = x2[1:]
     # Split length scales in half
@@ -161,7 +163,7 @@ def bumpkern(ls, x1, x2=None, grad=False):
     # Matern 5/2 for force
     kF = Matern52(lsForce, force1, force2)
     # Periodic for theta
-    kT = np.exp(-2*np.square(math.sin(dTheta/2)/lsAngle))
+    kT = np.exp(-2*np.square(np.sin(dTheta/2)/lsAngle))
 
     return kF * kT
 
