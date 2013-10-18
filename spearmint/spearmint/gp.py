@@ -122,9 +122,9 @@ def grad_Matern32(ls, x1, x2=None):
     return grad_r2[:,:,np.newaxis] * grad_dist2(ls, x1, x2)
 
 def Matern52(ls, x1, x2=None, grad=False):
-    print 'x1: %s' % (x1.shape,)
-    if x2 is not None:
-        print 'x2: %s' % (x2.shape,)
+    # print 'x1: %s' % (x1.shape,)
+    # if x2 is not None:
+    #     print 'x2: %s' % (x2.shape,)
     r2  = np.abs(dist2(ls, x1, x2))
     r   = np.sqrt(r2)
     cov = (1.0 + SQRT_5*r + (5.0/3.0)*r2) * np.exp(-SQRT_5*r)
@@ -141,34 +141,42 @@ def grad_Matern52(ls, x1, x2=None):
 # Assumes that the first component 
 def bumpkern(ls, x1, x2=None, grad=False):
     if grad == True:
-        print "FAILURE"
+        print "FAILURE: bumpkern can't handle grad=True"
         os.exit(0)
-    print "Shape (x1):", x1.shape
-    # Extract force and angle
-    angle1 = x1[0]
-    force1 = x1[1:]
-    if x2 == None:
-        angle2 = None
-        force2 = None
-    else:
-        print "Shape: (x2):", x2.shape
-        angle2 = x2[0]
-        force2 = x2[1:]
-    # Split length scales in half
-    lsForce = ls[1:]
-    lsAngle = ls[0]
+    # print "Shape (ls):", ls.shape
+    # print "ls=", ls
+    # print "Shape (x1):", x1.shape
 
-    if x2 == None:
-        dTheta = 0
+    if x2 is None:
+        x2 = x1
+        # print "No x2 provided."
     else:
-        dTheta = np.abs(angle1-angle2)
+        pass
+        # print "Shape (x2):", x2.shape
+
+    # Extract force and angle
+    angle1 = x1[:,0]
+    force1 = x1[:,1][:, np.newaxis]
+    angle2 = x2[:,0]
+    force2 = x2[:,1][:, np.newaxis]
+    # print "Angle shapes:", angle1.shape, angle2.shape
+
+    dTheta = np.tile(angle1, (angle2.shape[0], 1)).T - np.tile(angle2, (angle1.shape[0], 1))
+
+    # Extract appropriate length scales from ls
+    lsAngle = np.array(ls[0])
+    lsForce = np.array(ls[1])
 
     # Matern 5/2 for force
+    # print "Force shapes:", force1.shape, force2.shape
     kF = Matern52(lsForce, force1, force2)
+    # print "Shape of kF:", kF.shape
     # Periodic for theta
-    kT = np.exp(-2*np.square(np.sin(math.pi * dTheta/1)/lsAngle))
-
-    return kF * kT
+    kT = np.exp(-2*np.square(np.sin(np.pi * dTheta)/lsAngle))
+    # print "Shape of kT:", kT.shape
+    res = kF * kT
+    # print "Shape of result:", res.shape
+    return res
 
 
 
